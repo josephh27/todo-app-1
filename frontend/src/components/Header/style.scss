@@ -1,0 +1,49 @@
+@use '@/variables';
+
+.lawful-purple-bg {
+  background: map-get(variables.$company_color, lexmeet_gradient);
+  color: map-get(variables.$company_color, "white");
+}
+
+.navbar-brand.white-font {
+  color: map-get(variables.$company_color, "white");
+}
+
+.white-font {
+  &.nav-link, &.navbar-nav, .nav-link.active, &.custom-nav-dropdown {
+    color: white;
+  }
+}
+
+.header-logo {
+  width: 80px;
+}
+
+.max-z-index {
+  z-index: 99;
+}
+
+.position-sticky {
+  position: sticky;
+}
+
+.custom-navbar {
+  display: flex;
+  width: 100%;
+  padding: 20px 30px; 
+
+  .navbar-logo-text {
+    font-size: 1.2rem;
+  }
+
+  .logo-elements-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+
+    p {
+      margin: 0;
+    }
+  }
+}
