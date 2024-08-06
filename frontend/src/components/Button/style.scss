@@ -1,13 +1,24 @@
 @use '@/variables';
 
 .task-custom-button {
-    background: map-get(variables.$company_color, lawful_purple_1);
     color:  map-get(variables.$company_color, striking_white);
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
 
-    &:hover {
-        background: rgba(map-get(variables.$company_color, lawful_purple_1), 0.7); // Adjust opacity to 0.7
+    &.orange {
+        background: map-get(variables.$company_color, striking_orange_1);
+
+        &:hover {
+            background: rgba(map-get(variables.$company_color, striking_orange_1), 0.7); // Adjust opacity to 0.7
+        }
+    }
+
+    &.purple {
+        background: map-get(variables.$company_color, lawful_purple_1);
+
+        &:hover {
+            background: rgba(map-get(variables.$company_color, lawful_purple_1), 0.7); // Adjust opacity to 0.7
+        }
     }
 }

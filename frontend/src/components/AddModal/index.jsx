@@ -28,7 +28,7 @@ const Modal = ({ isOpen, onClose, onSave }) => {
     isOpen ? (
       <div className="modal-overlay">
         <div className="custom-modal-content">
-          <h2>Add a Task</h2>
+          <h2>Add Task</h2>
           <input
             type="text"
             value={title}

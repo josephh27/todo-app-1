@@ -1,3 +1,5 @@
+// src/components/Tasks.js
+
 import React, { useState, useEffect } from 'react';
 import './style.scss';
 import Searchbar from '@/components/Searchbar';
@@ -6,29 +8,31 @@ import { MdAssignmentAdd, MdEdit, MdDelete } from 'react-icons/md';
 import { IoFilter } from 'react-icons/io5';
 import AddModal from '@/components/AddModal';
 import EditModal from '@/components/EditModal';
+import TagDropdown from '@/components/TagDropdown'; // Import the new component
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingTaskIndex, setEditingTaskIndex] = useState(null);
-  const [selectedTags, setSelectedTags] = useState([]); // Change to array for multiple selections
+  const [selectedTags, setSelectedTags] = useState([]);
 
   useEffect(() => {
-    // Load tasks from local storage on component mount
     const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
     setTasks(savedTasks);
   }, []);
 
   const handleAddTask = (newTask) => {
-    const updatedTasks = [...tasks, newTask];
+    const taskWithCompletion = { ...newTask, completed: false };
+    const updatedTasks = [...tasks, taskWithCompletion];
     setTasks(updatedTasks);
     localStorage.setItem('tasks', JSON.stringify(updatedTasks));
     setIsModalOpen(false);
   };
 
   const handleEditTask = (updatedTask) => {
-    const updatedTasks = tasks.map((task, i) => (i === editingTaskIndex ? updatedTask : task));
+    const taskWithCompletion = { ...updatedTask, completed: tasks[editingTaskIndex].completed };
+    const updatedTasks = tasks.map((task, i) => (i === editingTaskIndex ? taskWithCompletion : task));
     setTasks(updatedTasks);
     localStorage.setItem('tasks', JSON.stringify(updatedTasks));
     setIsEditModalOpen(false);
@@ -37,6 +41,14 @@ const Tasks = () => {
 
   const handleDeleteTask = (index) => {
     const updatedTasks = tasks.filter((_, i) => i !== index);
+    setTasks(updatedTasks);
+    localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+  };
+
+  const handleCheckboxChange = (index) => {
+    const updatedTasks = tasks.map((task, i) =>
+      i === index ? { ...task, completed: !task.completed } : task
+    );
     setTasks(updatedTasks);
     localStorage.setItem('tasks', JSON.stringify(updatedTasks));
   };
@@ -54,14 +66,15 @@ const Tasks = () => {
     setIsEditModalOpen(false);
   };
 
-  // Update tag click handler to support multiple selections
   const handleTagClick = (tag) => {
     setSelectedTags((prevSelectedTags) =>
       prevSelectedTags.includes(tag)
-        ? prevSelectedTags.filter((t) => t !== tag) // Remove tag if already selected
-        : [...prevSelectedTags, tag] // Add tag if not selected
+        ? prevSelectedTags.filter((t) => t !== tag)
+        : [...prevSelectedTags, tag]
     );
   };
+
+  const tags = ['Work', 'Personal', 'Urgent', 'Home', 'Projects'];
 
   return (
     <div>
@@ -78,23 +91,13 @@ const Tasks = () => {
             <p className="month">April</p>
             <p>Today is Saturday, April 6th, 2024</p>
           </div>
-          <div className="task-tags-container">
-            {['Work', 'Personal', 'Urgent', 'Home', 'Projects'].map((tag) => (
-              <div
-                key={tag}
-                className={`tag-item ${selectedTags.includes(tag) ? 'selected' : ''}`}
-                onClick={() => handleTagClick(tag)}
-              >
-                {tag}
-              </div>
-            ))}
-          </div>
           <div className="task-upper-buttons">
-            <Button>
+            <Button color="purple">
               <IoFilter className="button-icon filter-icon" />
-              <span>Filters</span>
+              <span>Sort by</span>
             </Button>
-            <Button onClick={handleOpenModal}>
+            <TagDropdown tags={tags} selectedTags={selectedTags} onTagClick={handleTagClick} />
+            <Button onClick={handleOpenModal}  color="orange">
               <MdAssignmentAdd className="button-icon" />
               <span>Create task</span>
             </Button>
@@ -102,16 +105,24 @@ const Tasks = () => {
         </div>
         <div className="tasks-list">
           {tasks.map((task, index) => (
-            <div key={index} className="task-card">
+            <div
+              key={index}
+              className={`task-card ${task.completed ? 'completed' : ''}`}
+            >
               <div className="task-card-content">
-                <h3>{task.title}</h3>
-                <p>Due: {task.dueDate}</p>
+                <input
+                  type="checkbox"
+                  checked={task.completed}
+                  onChange={() => handleCheckboxChange(index)}
+                />
+                <h3 className={task.completed ? 'completed-text' : ''}>{task.title}</h3>
+                <p className={task.completed ? 'completed-text' : ''}>Due: {task.dueDate}</p>
                 <div className="tags-container">
                   {task.tags.map((tag, i) => (
                     <div key={i} className="tag-item">{tag}</div>
                   ))}
                 </div>
-                <p>{task.description}</p>
+                <p className={task.completed ? 'completed-text' : ''}>{task.description}</p>
               </div>
               <div className="task-card-actions">
                 <Button onClick={() => handleOpenEditModal(index)}>

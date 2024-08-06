@@ -12,7 +12,7 @@
 body {
   margin: 0;
   color: map-get(variables.$company_color, striking_white);
-  background: map-get(variables.$company_color, striking_white);
+  // background: map-get(variables.$company_color, striking_white);
 }
 
 html {

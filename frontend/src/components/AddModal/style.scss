@@ -29,6 +29,7 @@
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
+    color: map-get(variables.$company_color, striking_gray);
   }
   
   .custom-modal-content textarea {

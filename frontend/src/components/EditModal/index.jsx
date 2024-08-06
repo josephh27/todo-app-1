@@ -6,7 +6,6 @@ const EditModal = ({ isOpen, onClose, onSave, task }) => {
   const [dueDate, setDueDate] = useState('');
   const [tags, setTags] = useState([]);
   const [description, setDescription] = useState('');
-  console.log(isOpen)
 
   const handleAddTag = (tag) => {
     if (tag && !tags.includes(tag)) {
@@ -43,7 +42,7 @@ const EditModal = ({ isOpen, onClose, onSave, task }) => {
     isOpen ? (
       <div className="modal-overlay">
         <div className="custom-modal-content">
-          <h2>Add a Task</h2>
+          <h2>Edit Task</h2>
           <input
             type="text"
             value={title}
