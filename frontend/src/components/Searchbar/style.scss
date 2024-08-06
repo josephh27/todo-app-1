@@ -1,12 +1,16 @@
+@use '@/variables';
+
+
 .search {
     width: 100%;
+    max-width: 400px;
     position: relative;
     display: flex;
   }
   
   .searchTerm {
     width: 100%;
-    border: 3px solid #00B4CC;
+    border: 3px solid map-get(variables.$company_color, striking_orange_1);
     border-right: none;
     padding: 5px;
     height: 36px;
@@ -22,8 +26,8 @@
   .searchButton {
     width: 40px;
     height: 36px;
-    border: 1px solid #00B4CC;
-    background: #00B4CC;
+    border: 1px solid map-get(variables.$company_color, striking_orange_1);
+    background: map-get(variables.$company_color, striking_orange_1);
     text-align: center;
     color: #fff;
     border-radius: 0 5px 5px 0;
@@ -31,3 +35,7 @@
     font-size: 20px;
   }
   
+  .custom-search {
+    display: block;
+    height: 40px;
+  }

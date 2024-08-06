@@ -1,17 +1,18 @@
 @use './variables';
+@import '@/variables';
 @import '../node_modules/bootstrap/scss/bootstrap';
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  color: map-get(variables.$company_color, white);
+  color: map-get(variables.$company_color, striking_white);
 }
 
 body {
   margin: 0;
-  color: map-get(variables.$company_color, white);
-  background: map-get(variables.$company_color, white);
+  color: map-get(variables.$company_color, striking_white);
+  background: map-get(variables.$company_color, striking_white);
 }
 
 html {

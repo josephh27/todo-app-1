@@ -1,0 +1,60 @@
+@use '@/variables';
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99;
+  }
+  
+  .custom-modal-content {
+    background: map-get(variables.$company_color, lexmeet_gradient);
+    padding: 20px;    
+    border-radius: 10px;
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .custom-modal-content input,
+  .custom-modal-content textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .custom-modal-content textarea {
+    height: 100px;
+  }
+  
+  .tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  
+  .tag-item {
+    background: #e0e0e0;
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin-right: 5px;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+  }
+  
+  .modal-buttons button {
+    margin-left: 10px;
+  }
+  

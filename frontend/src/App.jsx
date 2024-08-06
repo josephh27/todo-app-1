@@ -10,7 +10,7 @@ import Sidebar from "@/components/Sidebar/"
 
 function App() {
   const [expandSidebar, setExpandSidebar] = useState(false)
-
+  
   const toggleSidebar = () => {
     setExpandSidebar(!expandSidebar)
   }
