@@ -1,14 +1,14 @@
-// src/components/Tasks.js
-
 import React, { useState, useEffect } from 'react';
 import './style.scss';
 import Searchbar from '@/components/Searchbar';
 import Button from '@/components/Button';
 import { MdAssignmentAdd, MdEdit, MdDelete } from 'react-icons/md';
+import { FaTrashAlt } from "react-icons/fa";
+import { GrTask } from "react-icons/gr";
 import { IoFilter } from 'react-icons/io5';
 import AddModal from '@/components/AddModal';
 import EditModal from '@/components/EditModal';
-import TagDropdown from '@/components/TagDropdown'; // Import the new component
+import TagDropdown from '@/components/TagDropdown'; 
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -16,6 +16,7 @@ const Tasks = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingTaskIndex, setEditingTaskIndex] = useState(null);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(''); // Add state for search query
 
   useEffect(() => {
     const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
@@ -23,7 +24,7 @@ const Tasks = () => {
   }, []);
 
   const handleAddTask = (newTask) => {
-    const taskWithCompletion = { ...newTask, completed: false };
+    const taskWithCompletion = { ...newTask, id: Date.now() }; // Add unique ID
     const updatedTasks = [...tasks, taskWithCompletion];
     setTasks(updatedTasks);
     localStorage.setItem('tasks', JSON.stringify(updatedTasks));
@@ -31,8 +32,9 @@ const Tasks = () => {
   };
 
   const handleEditTask = (updatedTask) => {
-    const taskWithCompletion = { ...updatedTask, completed: tasks[editingTaskIndex].completed };
-    const updatedTasks = tasks.map((task, i) => (i === editingTaskIndex ? taskWithCompletion : task));
+    const updatedTasks = tasks.map((task, i) =>
+      i === editingTaskIndex ? updatedTask : task
+    );
     setTasks(updatedTasks);
     localStorage.setItem('tasks', JSON.stringify(updatedTasks));
     setIsEditModalOpen(false);
@@ -45,12 +47,32 @@ const Tasks = () => {
     localStorage.setItem('tasks', JSON.stringify(updatedTasks));
   };
 
-  const handleCheckboxChange = (index) => {
-    const updatedTasks = tasks.map((task, i) =>
-      i === index ? { ...task, completed: !task.completed } : task
-    );
+  const handleCheckboxChange = (taskId) => {
+    console.log(`Checkbox toggled for taskId: ${taskId}`);
+    
+    const updatedTasks = tasks.map((task) => {
+      if (task.id === taskId) {
+        console.log(taskId)
+        const newStatus = task.status === 'Completed' ? 'Pending' : 'Completed';
+        console.log(`Updating task ${taskId} from ${task.status} to ${newStatus}`);
+        return { ...task, status: newStatus };
+      }
+      return task;
+    });
+  
     setTasks(updatedTasks);
     localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+  };
+
+  const handleMarkAllDone = () => {
+    const updatedTasks = tasks.map(task => ({ ...task, status: 'Completed' }));
+    setTasks(updatedTasks);
+    localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+  };
+
+  const handleDeleteAllTasks = () => {
+    setTasks([]);
+    localStorage.setItem('tasks', JSON.stringify([]));
   };
 
   const handleOpenModal = () => setIsModalOpen(true);
@@ -76,6 +98,26 @@ const Tasks = () => {
 
   const tags = ['Work', 'Personal', 'Urgent', 'Home', 'Projects'];
 
+  const pendingTasks = tasks.filter(task => task.status === 'Pending');
+  const completedTasks = tasks.filter(task => task.status === 'Completed');
+
+  const filteredPendingTasks = pendingTasks.filter(task => 
+    task.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredCompletedTasks = completedTasks.filter(task => 
+    task.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  useEffect(() => {
+    const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    setTasks(savedTasks);
+  }, []);
+  
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }, [tasks]);
+
   return (
     <div>
       <div className="task-upper-navbar">
@@ -83,7 +125,7 @@ const Tasks = () => {
           <p>Welcome,</p>
           <p>User</p>
         </div>
-        <Searchbar />
+        <Searchbar value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
       </div>
       <div className="task-body">
         <div className="upper-navigation">
@@ -97,44 +139,88 @@ const Tasks = () => {
               <span>Sort by</span>
             </Button>
             <TagDropdown tags={tags} selectedTags={selectedTags} onTagClick={handleTagClick} />
-            <Button onClick={handleOpenModal}  color="orange">
+            <Button onClick={handleMarkAllDone} color="orange">
+              <GrTask className="button-icon" />
+              <span>Mark all done</span>
+            </Button>
+            <Button onClick={handleDeleteAllTasks} color="orange">
+              <FaTrashAlt className="button-icon trash" />
+              <span>Delete all tasks</span>
+            </Button>
+            <Button onClick={handleOpenModal} color="orange">
               <MdAssignmentAdd className="button-icon" />
               <span>Create task</span>
             </Button>
           </div>
         </div>
-        <div className="tasks-list">
-          {tasks.map((task, index) => (
-            <div
-              key={index}
-              className={`task-card ${task.completed ? 'completed' : ''}`}
-            >
-              <div className="task-card-content">
-                <input
-                  type="checkbox"
-                  checked={task.completed}
-                  onChange={() => handleCheckboxChange(index)}
-                />
-                <h3 className={task.completed ? 'completed-text' : ''}>{task.title}</h3>
-                <p className={task.completed ? 'completed-text' : ''}>Due: {task.dueDate}</p>
-                <div className="tags-container">
-                  {task.tags.map((tag, i) => (
-                    <div key={i} className="tag-item">{tag}</div>
-                  ))}
+        <div className="tasks-compilation">
+          <div className="tasks-list pending">
+            <h3>Pending</h3>
+            {filteredPendingTasks.map((task, i) => (
+              <div
+                key={`pending ${i}`} 
+                className={`task-card ${task.status === 'Completed' ? 'Completed' : ''}`}
+              >
+                <div className="task-card-content">
+                  <input
+                    type="checkbox"
+                    checked={task.status === 'Completed'}  // Bind checkbox state to task status
+                    onChange={() => handleCheckboxChange(task.id)}  // Pass unique ID
+                  />
+                  <h3 className={task.status === 'Completed' ? 'completed-text' : ''}>{task.title}</h3>
+                  <p className={task.status === 'Completed' ? 'completed-text' : ''}>Due: {task.dueDate}</p>
+                  <div className="tags-container">
+                    {task.tags.map((tag, i) => (
+                      <div key={i} className="tag-item">{tag}</div>
+                    ))}
+                  </div>
+                  <p className={task.status === 'Completed' ? 'completed-text' : ''}>{task.description}</p>
                 </div>
-                <p className={task.completed ? 'completed-text' : ''}>{task.description}</p>
+                <div className="task-card-actions">
+                  <Button onClick={() => handleOpenEditModal(i)} color="purple">
+                    <MdEdit className="action-icon" />
+                  </Button>
+                  <Button onClick={() => handleDeleteTask(i)} color="orange">
+                    <MdDelete className="action-icon" />
+                  </Button>
+                </div>
               </div>
-              <div className="task-card-actions">
-                <Button onClick={() => handleOpenEditModal(index)}>
-                  <MdEdit className="action-icon" />
-                </Button>
-                <Button onClick={() => handleDeleteTask(index)}>
-                  <MdDelete className="action-icon" />
-                </Button>
+            ))}
+          </div>
+          <div className="tasks-list completed">
+            <h3>Completed</h3>
+            {filteredCompletedTasks.map((task, index) => (
+              <div
+                key={`completed ${index}`}  // Use unique id if available, else fallback to index
+                className={`task-card ${task.status === 'Completed' ? 'Completed' : ''}`}
+              >
+                <div className="task-card-content">
+                  <input
+                    type="checkbox"
+                    checked={task.status === 'Completed'}
+                    onChange={() => handleCheckboxChange(task.id)}
+                  />
+                  <h3 className={task.status === 'Completed' ? 'completed-text' : ''}>{task.title}</h3>
+                  <p className={task.status === 'Completed'? 'completed-text' : ''}>Due: {task.dueDate}</p>
+                  <div className="tags-container">
+                    {task.tags.map((tag, i) => (
+                      <div key={i} className="tag-item">{tag}</div>
+                    ))}
+                  </div>
+                  <p className={task.status === 'Completed' ? 'completed-text' : ''}>{task.description}</p>
+                </div>
+                <div className="task-card-actions">
+                  <Button onClick={() => handleOpenEditModal(index)} color="purple">
+                    <MdEdit className="action-icon" />
+                  </Button>
+                  <Button onClick={() => handleDeleteTask(index)} color="orange">
+                    <MdDelete className="action-icon" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </div>       
       </div>
       <AddModal
         isOpen={isModalOpen}

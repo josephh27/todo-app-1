@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './style.scss';
 
 const EditModal = ({ isOpen, onClose, onSave, task }) => {
@@ -6,6 +6,8 @@ const EditModal = ({ isOpen, onClose, onSave, task }) => {
   const [dueDate, setDueDate] = useState('');
   const [tags, setTags] = useState([]);
   const [description, setDescription] = useState('');
+  const [status, setStatus] = useState('Pending');
+  const predefinedTags = ['Work', 'Personal', 'Urgent', 'Later', 'Important'];
 
   const handleAddTag = (tag) => {
     if (tag && !tags.includes(tag)) {
@@ -14,27 +16,32 @@ const EditModal = ({ isOpen, onClose, onSave, task }) => {
   };
 
   const handleSave = () => {
-    if (title.trim()) {
-      const newTask = { title, dueDate, tags, description };
-      onSave(newTask);
+    if (title.trim() && dueDate && description.trim()) {
+      const updatedTask = { title, dueDate, tags, description, status };
+      onSave(updatedTask);
       setTitle('');
       setDueDate('');
       setTags([]);
       setDescription('');
+      setStatus('Pending');
+    } else {
+      console.log('Empty inputs!')
     }
   };
 
-    useEffect(() => {
+  useEffect(() => {
     if (task) {
       setTitle(task.title);
       setDueDate(task.dueDate);
       setTags(task.tags);
       setDescription(task.description);
+      setStatus(task.status);
     } else {
       setTitle('');
       setDueDate('');
       setTags([]);
       setDescription('');
+      setStatus('Pending');
     }
   }, [task]);
 
@@ -50,20 +57,26 @@ const EditModal = ({ isOpen, onClose, onSave, task }) => {
             placeholder="Task Title"
           />
           <input
-            type="date"
+            type="datetime-local"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
+            min={new Date().toISOString().slice(0, -8)}
           />
-          <input
-            type="text"
-            placeholder="Add tag"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleAddTag(e.target.value);
-                e.target.value = '';
-              }
-            }}
-          />
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            <option value="Pending">Pending</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <select
+            onChange={(e) => handleAddTag(e.target.value)}
+          >
+            <option value="">Select a tag</option>
+            {predefinedTags.map((tag, index) => (
+              <option key={index} value={tag}>{tag}</option>
+            ))}
+          </select>
           <div className="tags-container">
             {tags.map((tag, index) => (
               <div key={index} className="tag-item">{tag}</div>
@@ -75,7 +88,7 @@ const EditModal = ({ isOpen, onClose, onSave, task }) => {
             placeholder="Task Description"
           />
           <div className="modal-buttons">
-            <button onClick={handleSave}>Save Changes</button>
+            <button onClick={handleSave}>Save</button>
             <button onClick={onClose}>Cancel</button>
           </div>
         </div>

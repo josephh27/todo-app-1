@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import './style.scss';
 
-const Modal = ({ isOpen, onClose, onSave }) => {
+const AddModal = ({ isOpen, onClose, onSave }) => {
   const [title, setTitle] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [tags, setTags] = useState([]);
   const [description, setDescription] = useState('');
+  const [status, setStatus] = useState('Pending');
+  const predefinedTags = ['Work', 'Personal', 'Urgent', 'Later', 'Important'];
 
   const handleAddTag = (tag) => {
     if (tag && !tags.includes(tag)) {
@@ -14,13 +16,16 @@ const Modal = ({ isOpen, onClose, onSave }) => {
   };
 
   const handleSave = () => {
-    if (title.trim()) {
-      const newTask = { title, dueDate, tags, description };
+    if (title.trim() && dueDate && description.trim()) {
+      const newTask = { title, dueDate, tags, description, status };
       onSave(newTask);
       setTitle('');
       setDueDate('');
       setTags([]);
       setDescription('');
+      setStatus('Pending');
+    } else {
+      console.log('Empty inputs!')
     }
   };
 
@@ -36,20 +41,26 @@ const Modal = ({ isOpen, onClose, onSave }) => {
             placeholder="Task Title"
           />
           <input
-            type="date"
+            type="datetime-local"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
+            min={new Date().toISOString().slice(0, -8)}
           />
-          <input
-            type="text"
-            placeholder="Add tag"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleAddTag(e.target.value);
-                e.target.value = '';
-              }
-            }}
-          />
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            <option value="Pending">Pending</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <select
+            onChange={(e) => handleAddTag(e.target.value)}
+          >
+            <option value="">Select a tag</option>
+            {predefinedTags.map((tag, index) => (
+              <option key={index} value={tag}>{tag}</option>
+            ))}
+          </select>
           <div className="tags-container">
             {tags.map((tag, index) => (
               <div key={index} className="tag-item">{tag}</div>
@@ -70,4 +81,4 @@ const Modal = ({ isOpen, onClose, onSave }) => {
   );
 };
 
-export default Modal;
+export default AddModal;

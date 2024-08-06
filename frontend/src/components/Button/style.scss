@@ -3,6 +3,7 @@
 .task-custom-button {
     color:  map-get(variables.$company_color, striking_white);
     padding: 10px 20px;
+    height: 45px;
     border-radius: 5px;
     cursor: pointer;
 
