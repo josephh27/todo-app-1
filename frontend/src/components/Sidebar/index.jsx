@@ -24,10 +24,10 @@ const Sidebar = ({ expandSidebar, toggleSidebar }) => {
                 <span class="link_name">Tasks</span>
               </a>
               <ul class="sub-menu blank">
-                <li><a class="link_name" href="#">Tasks</a></li>
+                <li><a class="link_name" href="/">Tasks</a></li>
               </ul>
             </li>
-            <li>
+            {/* <li>
               <a href="#">
                 <i class='bx bx-cog' ><BiTask /></i>
                 <span class="link_name">Completed</span>
@@ -35,7 +35,7 @@ const Sidebar = ({ expandSidebar, toggleSidebar }) => {
               <ul class="sub-menu blank">
                 <li><a class="link_name" href="#">Completed</a></li>
               </ul>
-            </li>
+            </li> */}
       </ul>
   </div>
 </>

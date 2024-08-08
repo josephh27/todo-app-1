@@ -5,29 +5,29 @@ import Button from '@/components/Button';
 import { MdAssignmentAdd, MdEdit, MdDelete } from 'react-icons/md';
 import { FaTrashAlt } from "react-icons/fa";
 import { GrTask } from "react-icons/gr";
-import { IoFilter } from 'react-icons/io5';
 import AddModal from '@/components/AddModal';
 import EditModal from '@/components/EditModal';
 import TagDropdown from '@/components/TagDropdown'; 
+import SortDropdown from '@/components/SortDropdown'; 
 
 const Tasks = () => {
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState(JSON.parse(localStorage.getItem('tasks')) || []);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingTaskIndex, setEditingTaskIndex] = useState(null);
   const [selectedTags, setSelectedTags] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(''); // Add state for search query
+  const [selectedSortBy, setSelectedSortBy] = useState('Due Date');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [fullyLoaded, setFullyLoaded] = useState(false);
 
-  useEffect(() => {
-    const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    setTasks(savedTasks);
-  }, []);
+  const now = new Date();
+  const options = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+  const dateString = now.toLocaleDateString('en-US', options);
 
   const handleAddTask = (newTask) => {
-    const taskWithCompletion = { ...newTask, id: Date.now() }; // Add unique ID
+    const taskWithCompletion = { ...newTask, id: Date.now() };
     const updatedTasks = [...tasks, taskWithCompletion];
     setTasks(updatedTasks);
-    localStorage.setItem('tasks', JSON.stringify(updatedTasks));
     setIsModalOpen(false);
   };
 
@@ -36,7 +36,6 @@ const Tasks = () => {
       i === editingTaskIndex ? updatedTask : task
     );
     setTasks(updatedTasks);
-    localStorage.setItem('tasks', JSON.stringify(updatedTasks));
     setIsEditModalOpen(false);
     setEditingTaskIndex(null);
   };
@@ -44,35 +43,26 @@ const Tasks = () => {
   const handleDeleteTask = (index) => {
     const updatedTasks = tasks.filter((_, i) => i !== index);
     setTasks(updatedTasks);
-    localStorage.setItem('tasks', JSON.stringify(updatedTasks));
   };
 
   const handleCheckboxChange = (taskId) => {
-    console.log(`Checkbox toggled for taskId: ${taskId}`);
-    
     const updatedTasks = tasks.map((task) => {
       if (task.id === taskId) {
-        console.log(taskId)
         const newStatus = task.status === 'Completed' ? 'Pending' : 'Completed';
-        console.log(`Updating task ${taskId} from ${task.status} to ${newStatus}`);
         return { ...task, status: newStatus };
       }
       return task;
     });
-  
     setTasks(updatedTasks);
-    localStorage.setItem('tasks', JSON.stringify(updatedTasks));
   };
 
   const handleMarkAllDone = () => {
     const updatedTasks = tasks.map(task => ({ ...task, status: 'Completed' }));
     setTasks(updatedTasks);
-    localStorage.setItem('tasks', JSON.stringify(updatedTasks));
   };
 
   const handleDeleteAllTasks = () => {
     setTasks([]);
-    localStorage.setItem('tasks', JSON.stringify([]));
   };
 
   const handleOpenModal = () => setIsModalOpen(true);
@@ -96,24 +86,42 @@ const Tasks = () => {
     );
   };
 
-  const tags = ['Work', 'Personal', 'Urgent', 'Home', 'Projects'];
+  const handleSortClick = (category) => {
+    setSelectedSortBy(category);
+  };
 
-  const pendingTasks = tasks.filter(task => task.status === 'Pending');
-  const completedTasks = tasks.filter(task => task.status === 'Completed');
+  const sortCategories = ['Due Date', 'Title'];
+  const tags = ['Work', 'Personal', 'Urgent', 'Later', 'Important'];
 
-  const filteredPendingTasks = pendingTasks.filter(task => 
-    task.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const sortTasks = (tasksList) => {
+    return tasksList.slice().sort((a, b) => {
+      if (selectedSortBy === 'Due Date') {
+        return new Date(a.dueDate) - new Date(b.dueDate);
+      } else if (selectedSortBy === 'Title') {
+        return a.title.localeCompare(b.title);
+      }
+      return 0;
+    });
+  };
 
-  const filteredCompletedTasks = completedTasks.filter(task => 
-    task.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filterTasks = (tasksList) => {
+    return sortTasks(
+      tasksList.filter(task =>
+        task.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        (selectedTags.length === 0 || task.tags.some(tag => selectedTags.includes(tag)))
+      )
+    );
+  };
 
-  useEffect(() => {
-    const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    setTasks(savedTasks);
-  }, []);
-  
+  const pendingTasks = filterTasks(tasks.filter(task => task.status === 'Pending'));
+  const completedTasks = filterTasks(tasks.filter(task => task.status === 'Completed'));
+
+  // useEffect(() => {
+  //   const savedTasks = ;
+  //   setTasks(savedTasks);
+  //   setFullyLoaded(true);
+  // }, []);
+
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
@@ -130,14 +138,11 @@ const Tasks = () => {
       <div className="task-body">
         <div className="upper-navigation">
           <div className="current-date-container">
-            <p className="month">April</p>
-            <p>Today is Saturday, April 6th, 2024</p>
+            <p className="month">{now.toLocaleString('en-US', { month: 'long' })}</p>
+            <p>Today is {dateString}</p>
           </div>
           <div className="task-upper-buttons">
-            <Button color="purple">
-              <IoFilter className="button-icon filter-icon" />
-              <span>Sort by</span>
-            </Button>
+            <SortDropdown sortCategories={sortCategories} selectedSortBy={selectedSortBy} onSortClick={handleSortClick} />
             <TagDropdown tags={tags} selectedTags={selectedTags} onTagClick={handleTagClick} />
             <Button onClick={handleMarkAllDone} color="orange">
               <GrTask className="button-icon" />
@@ -156,19 +161,29 @@ const Tasks = () => {
         <div className="tasks-compilation">
           <div className="tasks-list pending">
             <h3>Pending</h3>
-            {filteredPendingTasks.map((task, i) => (
+            {pendingTasks.map((task, i) => (
               <div
-                key={`pending ${i}`} 
+                key={task.id} 
                 className={`task-card ${task.status === 'Completed' ? 'Completed' : ''}`}
               >
                 <div className="task-card-content">
                   <input
                     type="checkbox"
-                    checked={task.status === 'Completed'}  // Bind checkbox state to task status
-                    onChange={() => handleCheckboxChange(task.id)}  // Pass unique ID
+                    checked={task.status === 'Completed'}
+                    onChange={() => handleCheckboxChange(task.id)}
                   />
                   <h3 className={task.status === 'Completed' ? 'completed-text' : ''}>{task.title}</h3>
-                  <p className={task.status === 'Completed' ? 'completed-text' : ''}>Due: {task.dueDate}</p>
+                  <p className={`${task.status === 'Completed' ? 'completed-text' : ''} task-card-due`}>
+                    Due: {new Date(task.dueDate).toLocaleString('en-US', { 
+                      weekday: 'long', 
+                      month: 'long', 
+                      day: 'numeric', 
+                      year: 'numeric', 
+                      hour: 'numeric', 
+                      minute: 'numeric', 
+                      hour12: true 
+                    })}
+                  </p>
                   <div className="tags-container">
                     {task.tags.map((tag, i) => (
                       <div key={i} className="tag-item">{tag}</div>
@@ -189,9 +204,9 @@ const Tasks = () => {
           </div>
           <div className="tasks-list completed">
             <h3>Completed</h3>
-            {filteredCompletedTasks.map((task, index) => (
+            {completedTasks.map((task, index) => (
               <div
-                key={`completed ${index}`}  // Use unique id if available, else fallback to index
+                key={task.id}
                 className={`task-card ${task.status === 'Completed' ? 'Completed' : ''}`}
               >
                 <div className="task-card-content">
@@ -201,7 +216,17 @@ const Tasks = () => {
                     onChange={() => handleCheckboxChange(task.id)}
                   />
                   <h3 className={task.status === 'Completed' ? 'completed-text' : ''}>{task.title}</h3>
-                  <p className={task.status === 'Completed'? 'completed-text' : ''}>Due: {task.dueDate}</p>
+                  <p className={task.status === 'Completed'? 'completed-text' : ''}>
+                    Due: {new Date(task.dueDate).toLocaleString('en-US', { 
+                      weekday: 'long', 
+                      month: 'long', 
+                      day: 'numeric', 
+                      year: 'numeric', 
+                      hour: 'numeric', 
+                      minute: 'numeric', 
+                      hour12: true 
+                    })}
+                  </p>
                   <div className="tags-container">
                     {task.tags.map((tag, i) => (
                       <div key={i} className="tag-item">{tag}</div>

@@ -43,3 +43,7 @@ p {
 input[type="checkbox"] {
   cursor: pointer;
 }
+
+.alert-text {
+  color: map-get(variables.$company_color, striking_gray);
+}

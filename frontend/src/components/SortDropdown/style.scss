@@ -51,6 +51,10 @@
     }
   
     .tag-item {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
       padding: 10px 12px;
       cursor: pointer;
       width: 100%;

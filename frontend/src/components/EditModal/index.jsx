@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import './style.scss';
 
+import Button from '@/components/Button'
+
 const EditModal = ({ isOpen, onClose, onSave, task }) => {
   const [title, setTitle] = useState('');
   const [dueDate, setDueDate] = useState('');
@@ -88,8 +90,8 @@ const EditModal = ({ isOpen, onClose, onSave, task }) => {
             placeholder="Task Description"
           />
           <div className="modal-buttons">
-            <button onClick={handleSave}>Save</button>
-            <button onClick={onClose}>Cancel</button>
+            <Button onClick={handleSave} color="purple">Save</Button>
+            <Button onClick={onClose} color="orange">Cancel</Button>
           </div>
         </div>
       </div>
