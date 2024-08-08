@@ -9,6 +9,8 @@ import AddModal from '@/components/AddModal';
 import EditModal from '@/components/EditModal';
 import TagDropdown from '@/components/TagDropdown'; 
 import SortDropdown from '@/components/SortDropdown'; 
+import Alert from '@/components/Alert';
+import Confirm from '@/components/Confirm';
 
 const Tasks = () => {
   const [tasks, setTasks] = useState(JSON.parse(localStorage.getItem('tasks')) || []);
@@ -18,7 +20,6 @@ const Tasks = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedSortBy, setSelectedSortBy] = useState('Due Date');
   const [searchQuery, setSearchQuery] = useState('');
-  const [fullyLoaded, setFullyLoaded] = useState(false);
 
   const now = new Date();
   const options = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
@@ -41,11 +42,11 @@ const Tasks = () => {
   };
 
   const handleDeleteTask = (index) => {
-    const updatedTasks = tasks.filter((_, i) => i !== index);
-    setTasks(updatedTasks);
+    Confirm(tasks, setTasks, index)
   };
 
-  const handleCheckboxChange = (taskId) => {
+  const handleCheckboxChange = (taskId, status) => {
+    if (status === 'pending') Alert("success", "Task Completed", "The task has been completed!");            
     const updatedTasks = tasks.map((task) => {
       if (task.id === taskId) {
         const newStatus = task.status === 'Completed' ? 'Pending' : 'Completed';
@@ -59,6 +60,8 @@ const Tasks = () => {
   const handleMarkAllDone = () => {
     const updatedTasks = tasks.map(task => ({ ...task, status: 'Completed' }));
     setTasks(updatedTasks);
+    Alert("success", "Completion Successful", "All tasks have been completed!");            
+
   };
 
   const handleDeleteAllTasks = () => {
@@ -170,9 +173,14 @@ const Tasks = () => {
                   <input
                     type="checkbox"
                     checked={task.status === 'Completed'}
-                    onChange={() => handleCheckboxChange(task.id)}
+                    onChange={() => handleCheckboxChange(task.id, 'pending')}
                   />
                   <h3 className={task.status === 'Completed' ? 'completed-text' : ''}>{task.title}</h3>
+                  <div className="tags-container">
+                    {task.tags.map((tag, i) => (
+                      <div key={i} className="tag-item-display">{tag}</div>
+                    ))}
+                  </div>
                   <p className={`${task.status === 'Completed' ? 'completed-text' : ''} task-card-due`}>
                     Due: {new Date(task.dueDate).toLocaleString('en-US', { 
                       weekday: 'long', 
@@ -184,12 +192,7 @@ const Tasks = () => {
                       hour12: true 
                     })}
                   </p>
-                  <div className="tags-container">
-                    {task.tags.map((tag, i) => (
-                      <div key={i} className="tag-item">{tag}</div>
-                    ))}
-                  </div>
-                  <p className={task.status === 'Completed' ? 'completed-text' : ''}>{task.description}</p>
+                  <p className={task.status === 'Completed' ? 'completed-text' : ''}>Description: {task.description}</p>
                 </div>
                 <div className="task-card-actions">
                   <Button onClick={() => handleOpenEditModal(i)} color="purple">
@@ -213,9 +216,14 @@ const Tasks = () => {
                   <input
                     type="checkbox"
                     checked={task.status === 'Completed'}
-                    onChange={() => handleCheckboxChange(task.id)}
+                    onChange={() => handleCheckboxChange(task.id, 'completed')}
                   />
                   <h3 className={task.status === 'Completed' ? 'completed-text' : ''}>{task.title}</h3>
+                  <div className="tags-container">
+                    {task.tags.map((tag, i) => (
+                      <div key={i} className="tag-item-display">{tag}</div>
+                    ))}
+                  </div>
                   <p className={task.status === 'Completed'? 'completed-text' : ''}>
                     Due: {new Date(task.dueDate).toLocaleString('en-US', { 
                       weekday: 'long', 
@@ -226,13 +234,8 @@ const Tasks = () => {
                       minute: 'numeric', 
                       hour12: true 
                     })}
-                  </p>
-                  <div className="tags-container">
-                    {task.tags.map((tag, i) => (
-                      <div key={i} className="tag-item">{tag}</div>
-                    ))}
-                  </div>
-                  <p className={task.status === 'Completed' ? 'completed-text' : ''}>{task.description}</p>
+                  </p>                  
+                  <p className={task.status === 'Completed' ? 'completed-text' : ''}>Description: {task.description}</p>
                 </div>
                 <div className="task-card-actions">
                   <Button onClick={() => handleOpenEditModal(index)} color="purple">

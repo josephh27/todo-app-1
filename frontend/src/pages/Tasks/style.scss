@@ -23,6 +23,7 @@
     .upper-navigation {
         display: flex;
         justify-content: space-between;
+        flex-wrap: wrap;
         border: 1px solid rgba(
             red(map-get(variables.$company_color, striking_gray)),
             green(map-get(variables.$company_color, striking_gray)),
@@ -70,6 +71,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-wrap: wrap;
     gap: 10px;
     color: map-get(variables.$company_color, striking_white);
 }
@@ -104,22 +106,22 @@
     flex-wrap: wrap;
   }
   
-  .tag-item {
+  .tag-item-display {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #e0e0e0;
+    background: map-get(variables.$company-color, lawful_purple_1);
     border-radius: 4px;
     padding: 5px 10px;
     margin-right: 5px;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
-    color: map-get(variables.$company_color, striking_gray);
+    color: map-get(variables.$company-color, striking_white);
   }
 
-  .tag-item.selected {
-    background: map-get(variables.$company_color, striking_orange_1); /* or any color to indicate selection */
-    color: #fff;
+  .tag-item-display.selected {
+    background: map-get(variables.$company_color, striking_orange_1); 
+    color: map-get(variables.$company-color, striking_white);
   }
   
   .task-card-actions {

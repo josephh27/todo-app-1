@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './style.scss';
 
 import Button from '@/components/Button'
+import Alert from '@/components/Alert'
 
 const EditModal = ({ isOpen, onClose, onSave, task }) => {
   const [title, setTitle] = useState('');
@@ -26,8 +27,14 @@ const EditModal = ({ isOpen, onClose, onSave, task }) => {
       setTags([]);
       setDescription('');
       setStatus('Pending');
+      Alert("success", "Edit Successful", "The task detail has been edited!");            
+
     } else {
-      console.log('Empty inputs!')
+      Alert(
+        "error",
+        "Editing Failed",
+        "Fill out all the input fields!"
+      );    
     }
   };
 

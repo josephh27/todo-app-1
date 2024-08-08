@@ -29,7 +29,11 @@ const AddModal = ({ isOpen, onClose, onSave }) => {
       setStatus('Pending');
       Alert("success", "Creation Successful", "The task has been created!");            
     } else {
-      console.log('Empty inputs!')
+      Alert(
+        "error",
+        "Creation Failed",
+        "Fill out all the input fields!"
+      );        
     }
   };
 
