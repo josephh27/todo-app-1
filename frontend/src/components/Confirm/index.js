@@ -1,5 +1,5 @@
 import Swal from "sweetalert2";
-
+import './style.scss';
 
 const Confirm = async(tasks, setTasks, index, type) => {
     if (type === 'deleteSingle') {
