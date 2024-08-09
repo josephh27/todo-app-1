@@ -42,7 +42,7 @@ const Tasks = () => {
   };
 
   const handleDeleteTask = (index) => {
-    Confirm(tasks, setTasks, index)
+    Confirm(tasks, setTasks, index, 'deleteSingle')
   };
 
   const handleCheckboxChange = (taskId, status) => {
@@ -64,8 +64,8 @@ const Tasks = () => {
 
   };
 
-  const handleDeleteAllTasks = () => {
-    setTasks([]);
+  const handleDeleteAllTasks = (index) => {
+    Confirm(tasks, setTasks, index, 'deleteAll')
   };
 
   const handleOpenModal = () => setIsModalOpen(true);

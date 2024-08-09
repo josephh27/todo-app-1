@@ -59,14 +59,18 @@
       transition: background-color 0.3s ease;
       border-radius: 0px;
       background: #ffffff;
+      color: map-get(variables.$company_color, striking_gray);
+
 
       &:hover {
         background: map-get(variables.$company_color, lawful_purple_2);
-        color: white;
+        color: map-get(variables.$company_color, striking_white);
       }
   
       &.selected {
         background: map-get(variables.$company_color, lawful_purple_1);
+        color: map-get(variables.$company_color, striking_white);
+
       }
     }
   
